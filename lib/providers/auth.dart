@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -6,16 +7,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Auth with ChangeNotifier {
   String _token = '';
-  static bool _confirmation = false;
+
   DateTime _expiryDate = DateTime.now();
   String _userId = '';
+  String _correo = '';
+  String _photo = '';
+  String _description = '';
 
   bool get isAuth {
     return _token != '';
-  }
-
-  bool get isConfirmed {
-    return _confirmation;
   }
 
   String get token {
@@ -29,8 +29,40 @@ class Auth with ChangeNotifier {
     return _userId;
   }
 
-  void confirmacion(String mess) {
-    //if
+  String get photo {
+    return _photo;
+  }
+
+  String get description {
+    return _description;
+  }
+
+  String get correo {
+    return _correo;
+  }
+
+  Future<String> getPhotoUrl() async {
+    String respuesta = "";
+    var url =
+        'https://prueba-164f3-default-rtdb.firebaseio.com/userData/$userId/.json?auth=$token';
+    print(url);
+    try {
+      final response = await http.get(Uri.parse(url));
+      //print("respuesta: " + respuesta);
+      print(response);
+      if (response.statusCode == 200) {
+        try {
+          if (json.decode(response.body) != null) {
+            respuesta = response.body;
+            print("respuesta: " + respuesta);
+          }
+          notifyListeners();
+        } catch (e) {}
+      }
+      return respuesta;
+    } catch (error) {
+      throw (error);
+    }
   }
 
   Future<List<String>> signup(String email, String password) async {
@@ -69,6 +101,7 @@ class Auth with ChangeNotifier {
       print(error);
     }
     if (responseData['idToken'] != null) {
+      _correo = email;
       _token = responseData['idToken'];
       _userId = responseData['localId'];
       _expiryDate = DateTime.now().add(Duration(
@@ -106,12 +139,36 @@ class Auth with ChangeNotifier {
         notifyListeners();
         final prefs = await SharedPreferences.getInstance();
         final userData = json.encode({
+          'correo': _correo,
           'token': _token,
           'userId': _userId,
-          'expiryDate': _expiryDate.toIso8601String()
+          'expiryDate': _expiryDate.toIso8601String(),
         });
         prefs.setString('userData', userData);
         prefs.get('key');
+        var url =
+            'https://prueba-164f3-default-rtdb.firebaseio.com/Photo/$userId/.json?auth=$token';
+        final response = await http.get(Uri.parse(url));
+        if (response.statusCode == 200) {
+          if (json.decode(response.body) != null) {
+            String rpta = response.body;
+            String stringWithoutQuotes = rpta.replaceAll('"', '');
+
+            print("stringWithoutQuotes: " +
+                stringWithoutQuotes); // Salida: Hello, World!
+            _photo = stringWithoutQuotes;
+          }
+          notifyListeners();
+        }
+        var url2 =
+            'https://prueba-164f3-default-rtdb.firebaseio.com/Description/$userId/.json?auth=$token';
+        final response2 = await http.get(Uri.parse(url2));
+        if (response.statusCode == 200) {
+          if (json.decode(response2.body) != null) {
+            _description = response2.body;
+          }
+          notifyListeners();
+        }
       }
     }
 
@@ -165,6 +222,7 @@ class Auth with ChangeNotifier {
         if (responseData3['emailVerified'] == false) {
           respuesta = 'El email NO está confirmado';
         } else {
+          _correo = email;
           _token = responseData['idToken'];
           _userId = responseData['localId'];
           _expiryDate = DateTime.now().add(Duration(
@@ -175,12 +233,36 @@ class Auth with ChangeNotifier {
           notifyListeners();
           final prefs = await SharedPreferences.getInstance();
           final userData = json.encode({
+            'correo': _correo,
             'token': _token,
             'userId': _userId,
             'expiryDate': _expiryDate.toIso8601String()
           });
           prefs.setString('userData', userData);
           prefs.get('key');
+          var url =
+              'https://prueba-164f3-default-rtdb.firebaseio.com/Photo/$userId/.json?auth=$token';
+          final response = await http.get(Uri.parse(url));
+          if (response.statusCode == 200) {
+            if (json.decode(response.body) != null) {
+              String rpta = response.body;
+              String stringWithoutQuotes = rpta.replaceAll('"', '');
+
+              print("stringWithoutQuotes: " +
+                  stringWithoutQuotes); // Salida: Hello, World!
+              _photo = stringWithoutQuotes;
+            }
+            notifyListeners();
+          }
+          var url2 =
+              'https://prueba-164f3-default-rtdb.firebaseio.com/Description/$userId/.json?auth=$token';
+          final response2 = await http.get(Uri.parse(url2));
+          if (response.statusCode == 200) {
+            if (json.decode(response2.body) != null) {
+              _description = response2.body;
+            }
+            notifyListeners();
+          }
         }
       }
     } catch (error) {
@@ -191,6 +273,7 @@ class Auth with ChangeNotifier {
 
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
+    print(prefs);
     if (!prefs.containsKey('userData')) {
       print('Esto es falso');
       return false;
@@ -207,8 +290,36 @@ class Auth with ChangeNotifier {
         return false;
       }
       _token = userData['token'].toString();
+      _correo = userData['correo'].toString();
       _userId = userData['userId'].toString();
       _expiryDate = expiryDate;
+      print(userData);
+      print("userData['correo'].toString(): " + userData['correo'].toString());
+      var url =
+          'https://prueba-164f3-default-rtdb.firebaseio.com/Photo/$userId/.json?auth=$token';
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        if (json.decode(response.body) != null) {
+          String rpta = response.body;
+          String stringWithoutQuotes = rpta.replaceAll('"', '');
+          print("stringWithoutQuotes: " +
+              stringWithoutQuotes); // Salida: Hello, World!
+          _photo = stringWithoutQuotes;
+        }
+        notifyListeners();
+      }
+      var url2 =
+          'https://prueba-164f3-default-rtdb.firebaseio.com/Description/$userId/.json?auth=$token';
+      final response2 = await http.get(Uri.parse(url2));
+      if (response.statusCode == 200) {
+        if (json.decode(response2.body) != null) {
+          _description = response2.body;
+        }
+        notifyListeners();
+      }
+
+      print("url: " + url);
+      print('_photo: ' + _photo.toString());
       notifyListeners();
       return true;
     }
@@ -216,11 +327,38 @@ class Auth with ChangeNotifier {
   }
 
   Future<void> logout() async {
+    _photo = '';
     _token = '';
+    _description = '';
     _userId = '';
+    _correo = '';
     _expiryDate = DateTime.now();
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     prefs.clear();
+  }
+
+  Future<void> addDataUser(
+      String token, String userId, String photoUrl, String desc) async {
+    notifyListeners();
+    final url =
+        'https://prueba-164f3-default-rtdb.firebaseio.com/Photo/$userId.json?auth=$token';
+    final url2 =
+        'https://prueba-164f3-default-rtdb.firebaseio.com/Description/$userId.json?auth=$token';
+    try {
+      final response = await http.put(Uri.parse(url),
+          body: json.encode(
+            photoUrl,
+          ));
+      final response2 = await http.put(Uri.parse(url2),
+          body: json.encode(
+            desc,
+          ));
+      _photo = photoUrl;
+      _description = desc;
+      notifyListeners();
+    } catch (error) {
+      //_setFavValue(oldStatus);
+    }
   }
 }

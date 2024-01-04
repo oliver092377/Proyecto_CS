@@ -106,11 +106,6 @@ class _AuthCardState extends State<AuthCard> {
       _isLoading = true;
     });
     try {
-      if (_passwordController.text == _confirmPasswordController.text) {
-        print("Las contraseñas coninciden");
-      } else {
-        print("Las contraseñas NO coinciden");
-      }
       if (_authMode == AuthMode.Login) {
         // log user in
         List<String> rpta = await Provider.of<Auth>(context, listen: false)
@@ -119,13 +114,19 @@ class _AuthCardState extends State<AuthCard> {
         if (rpta[0] != '') _showErrorDialog(rpta);
       } else {
         //sign user up
-        List<String> rpta = await Provider.of<Auth>(context, listen: false)
-            .signup(_authData['email']!, _authData['password']!);
-        //print(_authData['email']);
-        //print(_authData['password']);
-        if (rpta[0] != '') {
+        if (_passwordController.text == _confirmPasswordController.text) {
+          List<String> rpta = await Provider.of<Auth>(context, listen: false)
+              .signup(_authData['email']!, _authData['password']!);
+          if (rpta[0] != '') {
+            _showErrorDialog(rpta);
+            if (rpta[1] == 'Mensaje') _authMode = AuthMode.Login;
+          }
+        } else {
+          List<String> rpta = [
+            "Las contraseñas no coinciden",
+            "Ocurrió un error"
+          ];
           _showErrorDialog(rpta);
-          if (rpta[1] == 'Mensaje') _authMode = AuthMode.Login;
         }
       }
     } on HttpException catch (error) {
@@ -148,10 +149,11 @@ class _AuthCardState extends State<AuthCard> {
       List<String> arreglo = [errorMessage, 'Ocurrió un error'];
       _showErrorDialog(arreglo);
     }
-
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _switchAuthMode() {
@@ -175,9 +177,9 @@ class _AuthCardState extends State<AuthCard> {
       ),
       elevation: 8.0,
       child: Container(
-        height: _authMode == AuthMode.Signup ? 320 : 260,
+        height: _authMode == AuthMode.Signup ? 400 : 260,
         constraints: BoxConstraints(
-          minHeight: _authMode == AuthMode.Signup ? 320 : 260,
+          minHeight: _authMode == AuthMode.Signup ? 400 : 260,
         ),
         width: deviceSize.width * 0.75,
         padding: EdgeInsets.all(16.0),

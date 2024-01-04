@@ -5,39 +5,7 @@ import 'dart:convert';
 import '../models/http_exception.dart';
 
 class Products with ChangeNotifier {
-  List<Product> _items = [
-    Product(
-      id: 'a1',
-      title: 'Sentra 2005',
-      description: 'Muy bueno',
-      km: 160000,
-      price: '90,000',
-      imageUrl01:
-          'https://www.ford.pe/content/dam/Ford/website-assets/latam/pe/nameplate/explorer/2022/Overview/models/xlt-3-5l-4-4/thumbnails/fpe-vehicle-group-explorer-blanco.png',
-      //imageUrl02: 'https://imgfz.com/i/YaZMLvd.jpeg',
-      imageUrl02:
-          'https://www.ford.pe/content/dam/Ford/website-assets/latam/pe/nameplate/explorer/2022/Overview/models/xlt-3-5l-4-4/thumbnails/fpe-vehicle-group-explorer-blanco.png',
-      imageUrl03:
-          'https://ripleype.imgix.net/https%3A%2F%2Fdpq25p1ucac70.cloudfront.net%2Fseller-place-files%2Fmrkl-files%2F1396%2FOTRAS%20CATEGORIAS%2FCONSOLA%20SONY%20PLAYSTATION%205%20LECTORA%20DISCO%20DE%20825GB.jpg?w=750&h=555&ch=Width&auto=format&cs=strip&bg=FFFFFF&q=60&trimcolor=FFFFFF&trim=color&fit=fillmax&ixlib=js-1.1.0&s=ac2628a5773aaef3c89b697a2c2e2f7e',
-      phone: '+51 926 831 100',
-      whatsapp: 51926831100,
-    ),
-    Product(
-      id: 'a2',
-      title: 'Altima 2011',
-      description: 'Cool',
-      km: 270000,
-      price: '120,000',
-      imageUrl01:
-          'https://ripleype.imgix.net/https%3A%2F%2Fdpq25p1ucac70.cloudfront.net%2Fseller-place-files%2Fmrkl-files%2F1396%2FOTRAS%20CATEGORIAS%2FCONSOLA%20SONY%20PLAYSTATION%205%20LECTORA%20DISCO%20DE%20825GB.jpg?w=750&h=555&ch=Width&auto=format&cs=strip&bg=FFFFFF&q=60&trimcolor=FFFFFF&trim=color&fit=fillmax&ixlib=js-1.1.0&s=ac2628a5773aaef3c89b697a2c2e2f7e',
-      imageUrl02:
-          'https://www.ford.pe/content/dam/Ford/website-assets/latam/pe/nameplate/explorer/2022/Overview/models/xlt-3-5l-4-4/thumbnails/fpe-vehicle-group-explorer-blanco.png',
-      imageUrl03:
-          'https://s7d2.scene7.com/is/image/TottusPE/42277088_1?wid=800&hei=800&qlt=70',
-      phone: '+51 926 831 100',
-      whatsapp: 51926831100,
-    ),
-  ];
+  List<Product> _items = [];
 
   final String authToken;
   final String userId;
@@ -59,36 +27,45 @@ class Products with ChangeNotifier {
         'https://prueba-164f3-default-rtdb.firebaseio.com/product.json?auth=$authToken';
     try {
       final response = await http.get(Uri.parse(url));
-      //print(json.decode(response.body));
-      final extratedData = json.decode(response.body) as Map<String, dynamic>;
-      if (extratedData == null) {
-        return;
+      if (response.statusCode == 200) {
+        try {
+          if (json.decode(response.body) == null) {
+            return;
+          }
+          final extratedData =
+              json.decode(response.body) as Map<String, dynamic>;
+          if (extratedData == null) {
+            return;
+          }
+          url =
+              'https://prueba-164f3-default-rtdb.firebaseio.com/userFavorites/$userId/.json?auth=$authToken';
+          final favoriteResponse = await http.get(Uri.parse(url));
+          final favoriteData = json.decode(favoriteResponse.body);
+          final List<Product> loadedProducts = [];
+          extratedData.forEach((prodId, prodData) {
+            loadedProducts.insert(
+                (0),
+                Product(
+                  id: prodId,
+                  autor: prodData['autor'],
+                  title: prodData['title'],
+                  price: prodData['price'],
+                  description: prodData['description'],
+                  km: prodData['km'],
+                  phone: prodData['phone'],
+                  whatsapp: prodData['whatsapp'],
+                  imageUrl01: prodData['imageUrl01'],
+                  imageUrl02: prodData['imageUrl02'],
+                  imageUrl03: prodData['imageUrl03'],
+                  isFavorite: favoriteData == null
+                      ? false
+                      : favoriteData[prodId] ?? false,
+                ));
+          });
+          _items = loadedProducts;
+          //notifyListeners();
+        } catch (e) {}
       }
-      url =
-          'https://prueba-164f3-default-rtdb.firebaseio.com/userFavorites/$userId/.json?auth=$authToken';
-      final favoriteResponse = await http.get(Uri.parse(url));
-      final favoriteData = json.decode(favoriteResponse.body);
-      final List<Product> loadedProducts = [];
-      extratedData.forEach((prodId, prodData) {
-        loadedProducts.insert(
-            (0),
-            Product(
-              id: prodId,
-              title: prodData['title'],
-              price: prodData['price'],
-              description: prodData['description'],
-              km: prodData['km'],
-              phone: prodData['phone'],
-              whatsapp: prodData['whatsapp'],
-              imageUrl01: prodData['imageUrl01'],
-              imageUrl02: prodData['imageUrl02'],
-              imageUrl03: prodData['imageUrl03'],
-              isFavorite:
-                  favoriteData == null ? false : favoriteData[prodId] ?? false,
-            ));
-      });
-      _items = loadedProducts;
-      notifyListeners();
     } catch (error) {
       throw (error);
     }
@@ -101,6 +78,7 @@ class Products with ChangeNotifier {
       final response = await http.post(Uri.parse(url),
           body: json.encode({
             'title': product.title,
+            'autor': userId,
             'price': product.price,
             'description': product.description,
             'km': product.km,
@@ -111,18 +89,19 @@ class Products with ChangeNotifier {
             'imageUrl03': product.imageUrl03,
           }));
       final newProduct = Product(
-        title: product.title,
-        price: product.price,
-        description: product.description,
-        km: product.km,
-        phone: product.phone,
-        whatsapp: product.whatsapp,
-        imageUrl01: product.imageUrl01,
-        imageUrl02: product.imageUrl02,
-        imageUrl03: product.imageUrl03,
-        isFavorite: product.isFavorite,
-        id: json.decode(response.body)['name'],
-      );
+          autor: product.autor,
+          title: product.title,
+          price: product.price,
+          description: product.description,
+          km: product.km,
+          phone: product.phone,
+          whatsapp: product.whatsapp,
+          imageUrl01: product.imageUrl01,
+          imageUrl02: product.imageUrl02,
+          imageUrl03: product.imageUrl03,
+          isFavorite: product.isFavorite,
+          id: json.decode(response.body)['name']);
+      //print(response.body);
       _items.add(newProduct);
       //_items.insert(0, newProduct);
       notifyListeners();

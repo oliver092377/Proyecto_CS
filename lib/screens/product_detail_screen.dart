@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../providers/products.dart';
 import 'package:provider/provider.dart';
 import 'package:another_carousel_pro/another_carousel_pro.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   static const routeName = 'product-detail';

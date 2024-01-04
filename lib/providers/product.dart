@@ -4,6 +4,7 @@ import 'dart:convert';
 
 class Product with ChangeNotifier {
   final String id;
+  final String autor;
   final String title;
   final String description;
   final int km;
@@ -17,6 +18,7 @@ class Product with ChangeNotifier {
 
   Product(
       {required this.id,
+      required this.autor,
       required this.title,
       required this.description,
       required this.km,
@@ -27,6 +29,7 @@ class Product with ChangeNotifier {
       required this.phone,
       required this.whatsapp,
       this.isFavorite = false});
+
   void _setFavValue(bool newValue) {
     isFavorite = newValue;
     notifyListeners();

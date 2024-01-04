@@ -5,6 +5,8 @@ import 'screens/product_detail_screen.dart';
 import 'providers/products.dart';
 import 'package:provider/provider.dart';
 import 'screens/nosotros_screen.dart';
+import 'screens/perfil_screen.dart';
+import 'screens/edit_user_data_screen.dart';
 import 'screens/user_products_screen.dart';
 import 'screens/edit_products_screen.dart';
 import 'providers/auth.dart';
@@ -54,6 +56,8 @@ class MyApp extends StatelessWidget {
             NosotrosScreen.routeName: (ctx) => NosotrosScreen(),
             UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
             EditProductsScreen.routeName: (ctx) => EditProductsScreen(),
+            PerfilScreen.routeName: (ctx) => PerfilScreen(),
+            EditUserDataScreen.routeName: (ctx) => EditUserDataScreen(),
           },
         ),
       ),

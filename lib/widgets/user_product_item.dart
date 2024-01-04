@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/edit_products_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/products.dart';
+import '../providers/auth.dart';
 
 class UserProductItem extends StatelessWidget {
   final String id;
@@ -10,6 +11,10 @@ class UserProductItem extends StatelessWidget {
   UserProductItem(this.id, this.title, this.imageUrl01);
   @override
   Widget build(BuildContext context) {
+    final authData = Provider.of<Auth>(context, listen: false);
+    print("authData.token: " + authData.token);
+    print("authData.userId: " + authData.userId);
+    print("id: " + id);
     final scaffold = Scaffold.of(context);
     return ListTile(
       title: Text(

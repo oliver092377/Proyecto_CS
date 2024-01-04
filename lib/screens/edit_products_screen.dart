@@ -26,6 +26,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
 
   var _editedProduct = Product(
     id: '',
+    autor: '',
     title: '',
     price: '',
     description: '',
@@ -152,6 +153,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                 ));
       }
     }
+
     setState(() {
       _isLoading = false;
     });
@@ -194,6 +196,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                         onSaved: (value) {
                           _editedProduct = Product(
                               id: _editedProduct.id,
+                              autor: _editedProduct.autor,
                               title: value!,
                               description: _editedProduct.description,
                               km: _editedProduct.km,
@@ -223,6 +226,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                         onSaved: (value) {
                           _editedProduct = Product(
                               id: _editedProduct.id,
+                              autor: _editedProduct.autor,
                               title: _editedProduct.title,
                               description: _editedProduct.description,
                               km: _editedProduct.km,
@@ -238,7 +242,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                       TextFormField(
                         initialValue: _initValues['description'],
                         decoration: InputDecoration(
-                            labelText: 'Desciption',
+                            labelText: 'Description',
                             labelStyle: TextStyle(color: Colors.black)),
                         maxLines: 3,
                         style: TextStyle(color: Colors.black),
@@ -250,6 +254,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                         onSaved: (value) {
                           _editedProduct = Product(
                               id: _editedProduct.id,
+                              autor: _editedProduct.autor,
                               title: _editedProduct.title,
                               description: value!,
                               km: _editedProduct.km,
@@ -277,6 +282,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                         onSaved: (value) {
                           _editedProduct = Product(
                               id: _editedProduct.id,
+                              autor: _editedProduct.autor,
                               title: _editedProduct.title,
                               description: _editedProduct.description,
                               km: int.parse(value!),
@@ -305,6 +311,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                         onSaved: (value) {
                           _editedProduct = Product(
                               id: _editedProduct.id,
+                              autor: _editedProduct.autor,
                               title: _editedProduct.title,
                               description: _editedProduct.description,
                               km: _editedProduct.km,
@@ -329,6 +336,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                         onSaved: (value) {
                           _editedProduct = Product(
                               id: _editedProduct.id,
+                              autor: _editedProduct.autor,
                               title: _editedProduct.title,
                               description: _editedProduct.description,
                               km: _editedProduct.km,
@@ -373,6 +381,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                             onSaved: (value) {
                               _editedProduct = Product(
                                   id: _editedProduct.id,
+                                  autor: _editedProduct.autor,
                                   title: _editedProduct.title,
                                   description: _editedProduct.description,
                                   km: _editedProduct.km,
@@ -419,6 +428,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                             onSaved: (value) {
                               _editedProduct = Product(
                                   id: _editedProduct.id,
+                                  autor: _editedProduct.autor,
                                   title: _editedProduct.title,
                                   description: _editedProduct.description,
                                   km: _editedProduct.km,
@@ -468,6 +478,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                             onSaved: (value) {
                               _editedProduct = Product(
                                   id: _editedProduct.id,
+                                  autor: _editedProduct.autor,
                                   title: _editedProduct.title,
                                   description: _editedProduct.description,
                                   km: _editedProduct.km,
